@@ -33,7 +33,17 @@ model Post {
   comments    Comment[]
   upvotes     Upvote[]
   tags        PostTag[]
+  images      Image[]   
 }
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  createdAt DateTime @default(now())
+}
+
 
 model Tag {
   id     Int       @id @default(autoincrement())
@@ -70,12 +80,4 @@ model Upvote {
   userId    Int
 
   @@unique([postId, userId])
-}
-
-model Image {
-  id        Int      @id @default(autoincrement())
-  url       String
-  post      Post?    @relation(fields: [postId], references: [id])
-  postId    Int?
-  createdAt DateTime @default(now())
 }
