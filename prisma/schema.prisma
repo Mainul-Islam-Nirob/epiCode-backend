@@ -8,73 +8,98 @@ datasource db {
 }
 
 model User {
-  id        String        @id @default(uuid())
+  id        String            @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String            @unique
   password  String
   posts     Post[]
   comments  Comment[]
   upvotes   Upvote[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  reactions CommentReaction[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 }
 
 model Post {
-  id          String        @id @default(uuid())
-  title       String
-  content     String
-  image       String?
-  published   Boolean    @default(false)
-  readTime    Int
-  excerpt     String?    
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  author      User       @relation(fields: [authorId], references: [id])
-  authorId    String
-  comments    Comment[]
-  upvotes     Upvote[]
-  tags        PostTag[]
-  images      Image[]
+  id        String    @id @default(uuid())
+  title     String
+  content   String
+  image     String?
+  published Boolean   @default(false)
+  readTime  Int
+  excerpt   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  comments  Comment[]
+  upvotes   Upvote[]
+  tags      PostTag[]
+  images    Image[]
 }
 
-
 model Image {
-  id        String        @id @default(uuid())
+  id        String   @id @default(uuid())
   url       String
   post      Post?    @relation(fields: [postId], references: [id])
   postId    String?
   createdAt DateTime @default(now())
 }
 
-
 model Tag {
-  id     String        @id @default(uuid())
-  name   String    @unique
-  posts  PostTag[]
+  id    String    @id @default(uuid())
+  name  String    @unique
+  posts PostTag[]
 }
 
 model PostTag {
   postId String
   tagId  String
-  post   Post @relation(fields: [postId], references: [id])
-  tag    Tag  @relation(fields: [tagId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
 
   @@id([postId, tagId])
 }
 
 model Comment {
-  id        String        @id @default(uuid())
+  id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   post      Post     @relation(fields: [postId], references: [id])
   postId    String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
+    user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  // For anonymous comments
+  name      String?
+  email     String?
+
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId String?
+  replies  Comment[] @relation("CommentReplies")
+
+  reactions CommentReaction[]
+}
+
+model CommentReaction {
+  id        String   @id @default(uuid())
+  type      String
+  createdAt DateTime @default(now())
+
+  comment   Comment @relation(fields: [commentId], references: [id])
+  commentId String
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  anonId String?
+
+  @@unique([commentId, userId])
+  @@unique([commentId, anonId])
 }
 
 model Upvote {
-  id        String        @id @default(uuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id])
   postId    String
