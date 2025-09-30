@@ -7,6 +7,8 @@ import { authMiddleware } from "./middleware/authMiddleware.js";
 import postsRoutes from "./routes/postsRoutes.js";
 import tagsRoutes from "./routes/tagsRoutes.js";
 import commentsRoutes from "./routes/commentsRoutes.js";
+import upvotesRoutes from "./routes/upvotesRoutes.js";
+
 
 
 
@@ -21,6 +23,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
+app.use("/api/posts", upvotesRoutes); 
 app.use("/api/tags", tagsRoutes);
 app.use("/api", commentsRoutes);
 
