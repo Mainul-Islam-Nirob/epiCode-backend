@@ -12,6 +12,8 @@ import upvotesRoutes from "./routes/upvotesRoutes.js";
 
 
 
+
+
 dotenv.config();
 
 const app = express();
@@ -26,6 +28,7 @@ app.use("/api/posts", postsRoutes);
 app.use("/api/posts", upvotesRoutes); 
 app.use("/api/tags", tagsRoutes);
 app.use("/api", commentsRoutes);
+
 
 
 

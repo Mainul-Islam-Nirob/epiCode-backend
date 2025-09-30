@@ -1,7 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import slugify from "slugify";
+import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
+
 
 const prisma = new PrismaClient();
+
 
 /**
  * Helper: compute read time in minutes from content (words / 200)
@@ -207,18 +210,24 @@ export const createPost = async (req, res) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
 
-    const { title, content, tags = [], image, published = false, excerpt, readTime } = req.body;
+    const { title, content, tags = [], published = false, excerpt, readTime } = req.body;
 
     if (!title || !content) return res.status(400).json({ error: "title and content required" });
 
     const computedReadTime = readTime || computeReadTime(content);
+    
+    let imageUrl = null;
+    if (req.file) {
+      const result = await uploadBufferToCloudinary(req.file.buffer);
+      imageUrl = result.secure_url;
+    }
 
     // create post
     const post = await prisma.post.create({
       data: {
         title,
         content,
-        image,
+        image: imageUrl,
         published,
         excerpt,
         readTime: computedReadTime,
@@ -246,41 +255,40 @@ export const createPost = async (req, res) => {
  */
 export const updatePost = async (req, res) => {
   try {
-    if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
+    if (!req.user?.id) return res.status(401).json({ error: "Unauthorized" });
 
     const id = req.params.id;
-    if (!id) return res.status(400).json({ error: "Invalid post id" });
-
     const existing = await prisma.post.findUnique({ where: { id }, include: { tags: true } });
     if (!existing) return res.status(404).json({ error: "Post not found" });
-
-    // only author can update
     if (existing.authorId !== req.user.id) return res.status(403).json({ error: "Forbidden" });
 
-    const { title, content, tags = [], image, published, excerpt, readTime } = req.body;
-
+    const { title, content, tags = [], published, excerpt, readTime } = req.body;
     const newReadTime = readTime || (content ? computeReadTime(content) : existing.readTime);
+
+    let imageUrl = existing.image;
+    if (req.file) {
+      const result = await uploadBufferToCloudinary(req.file.buffer);
+      imageUrl = result.secure_url;
+    }
 
     const updated = await prisma.post.update({
       where: { id },
       data: {
         title: title ?? existing.title,
         content: content ?? existing.content,
-        image: image ?? existing.image,
+        image: imageUrl,
         published: published ?? existing.published,
         readTime: newReadTime,
         excerpt: excerpt ?? existing.excerpt,
       },
     });
 
-    // handle tags: remove previous relations and add new ones (simple approach)
     if (Array.isArray(tags)) {
-      // delete old postTag rows
       await prisma.postTag.deleteMany({ where: { postId: id } });
-      // create/get tags and relate
       const tagIds = await getOrCreateTags(tags);
-      const creates = tagIds.map((tagId) => prisma.postTag.create({ data: { postId: id, tagId } }));
-      await Promise.all(creates);
+      await Promise.all(tagIds.map((tagId) =>
+        prisma.postTag.create({ data: { postId: id, tagId } })
+      ));
     }
 
     res.json({ data: { id: updated.id } });

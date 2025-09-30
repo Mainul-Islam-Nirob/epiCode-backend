@@ -7,6 +7,7 @@ import {
   deletePost,
   togglePublish,
 } from "../controllers/postsController.js";
+import upload from "../utils/multer.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -16,8 +17,8 @@ router.get("/", listPosts);
 router.get("/:id", getPostById);
 
 // Protected: create, update, delete, publish toggle
-router.post("/", authMiddleware, createPost);
-router.put("/:id", authMiddleware, updatePost);
+router.post("/", authMiddleware, upload.single("image"), createPost);
+router.put("/:id", authMiddleware, upload.single("image"), updatePost);
 router.delete("/:id", authMiddleware, deletePost);
 router.patch("/:id/publish", authMiddleware, togglePublish);
 
