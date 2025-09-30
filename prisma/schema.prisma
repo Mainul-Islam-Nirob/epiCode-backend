@@ -7,11 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  author
+  user
+}
+
+
 model User {
   id        String            @id @default(uuid())
   name      String
   email     String            @unique
   password  String
+  role Role @default(user) // values: "admin", "author", "user"
   posts     Post[]
   comments  Comment[]
   upvotes   Upvote[]

@@ -73,10 +73,15 @@ export const updateComment = async (req, res) => {
     const comment = await prisma.comment.findUnique({ where: { id } });
     if (!comment) return res.status(404).json({ error: "Comment not found" });
 
-    if (comment.authorId !== req.user.id && !req.user.isAdmin) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
+const post = await prisma.post.findUnique({ where: { id: comment.postId } });
 
+const isAuthorOfPost = post?.authorId === req.user.id;
+const isAdmin = req.user.role === "admin";
+const isCommentOwner = comment.userId === req.user.id;
+
+if (!isAdmin && !isCommentOwner && !(req.user.role === "author" && isAuthorOfPost)) {
+  return res.status(403).json({ error: "Forbidden" });
+}
     const updated = await prisma.comment.update({
       where: { id },
       data: { content },
@@ -97,9 +102,15 @@ export const deleteComment = async (req, res) => {
     const comment = await prisma.comment.findUnique({ where: { id } });
     if (!comment) return res.status(404).json({ error: "Comment not found" });
 
-    if (comment.authorId !== req.user.id && !req.user.isAdmin) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
+const post = await prisma.post.findUnique({ where: { id: comment.postId } });
+
+const isAuthorOfPost = post?.authorId === req.user.id;
+const isAdmin = req.user.role === "admin";
+const isCommentOwner = comment.userId === req.user.id;
+
+if (!isAdmin && !isCommentOwner && !(req.user.role === "author" && isAuthorOfPost)) {
+  return res.status(403).json({ error: "Forbidden" });
+}
 
     await prisma.comment.delete({ where: { id } });
     res.json({ message: "Comment deleted" });

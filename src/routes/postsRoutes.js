@@ -9,6 +9,7 @@ import {
 } from "../controllers/postsController.js";
 import upload from "../utils/multer.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
