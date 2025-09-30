@@ -26,6 +26,7 @@ model Post {
   image       String?
   published   Boolean    @default(false)
   readTime    Int
+  excerpt     String?    
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   author      User       @relation(fields: [authorId], references: [id])
@@ -33,8 +34,9 @@ model Post {
   comments    Comment[]
   upvotes     Upvote[]
   tags        PostTag[]
-  images      Image[]   
+  images      Image[]
 }
+
 
 model Image {
   id        Int      @id @default(autoincrement())

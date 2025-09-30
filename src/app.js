@@ -4,6 +4,8 @@ import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
+import postsRoutes from "./routes/postsRoutes.js";
+
 
 
 dotenv.config();
@@ -16,11 +18,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
-
-// Example protected route
-app.get("/api/protected", authMiddleware, (req, res) => {
-  res.json({ message: `Hello ${req.user.email}, you are authorized!` });
-});
+app.use("/api/posts", postsRoutes);
+console.log("✅ Posts routes mounted at /api/posts");
 
 
 // Health check route
