@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        String        @id @default(uuid())
   name      String
   email     String    @unique
   password  String
@@ -20,7 +20,7 @@ model User {
 }
 
 model Post {
-  id          Int        @id @default(autoincrement())
+  id          String        @id @default(uuid())
   title       String
   content     String
   image       String?
@@ -30,7 +30,7 @@ model Post {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   author      User       @relation(fields: [authorId], references: [id])
-  authorId    Int
+  authorId    String
   comments    Comment[]
   upvotes     Upvote[]
   tags        PostTag[]
@@ -39,23 +39,23 @@ model Post {
 
 
 model Image {
-  id        Int      @id @default(autoincrement())
+  id        String        @id @default(uuid())
   url       String
   post      Post?    @relation(fields: [postId], references: [id])
-  postId    Int?
+  postId    String?
   createdAt DateTime @default(now())
 }
 
 
 model Tag {
-  id     Int       @id @default(autoincrement())
+  id     String        @id @default(uuid())
   name   String    @unique
   posts  PostTag[]
 }
 
 model PostTag {
-  postId Int
-  tagId  Int
+  postId String
+  tagId  String
   post   Post @relation(fields: [postId], references: [id])
   tag    Tag  @relation(fields: [tagId], references: [id])
 
@@ -63,23 +63,23 @@ model PostTag {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        String        @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   post      Post     @relation(fields: [postId], references: [id])
-  postId    Int
+  postId    String
   author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  authorId  String
 }
 
 model Upvote {
-  id        Int      @id @default(autoincrement())
+  id        String        @id @default(uuid())
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id])
-  postId    Int
+  postId    String
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
 
   @@unique([postId, userId])
 }

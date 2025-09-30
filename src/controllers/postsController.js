@@ -149,7 +149,7 @@ export const listPosts = async (req, res) => {
  */
 export const getPostById = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     if (!id) return res.status(400).json({ error: "Invalid post id" });
 
     const post = await prisma.post.findUnique({
@@ -248,7 +248,7 @@ export const updatePost = async (req, res) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
 
-    const id = Number(req.params.id);
+    const id = req.params.id;
     if (!id) return res.status(400).json({ error: "Invalid post id" });
 
     const existing = await prisma.post.findUnique({ where: { id }, include: { tags: true } });
@@ -298,7 +298,7 @@ export const deletePost = async (req, res) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
 
-    const id = Number(req.params.id);
+    const id = req.params.id;
     if (!id) return res.status(400).json({ error: "Invalid post id" });
 
     const existing = await prisma.post.findUnique({ where: { id } });
@@ -330,7 +330,7 @@ export const togglePublish = async (req, res) => {
   try {
     if (!req.user || !req.user.id) return res.status(401).json({ error: "Unauthorized" });
 
-    const id = Number(req.params.id);
+    const id = req.params.id;
     if (!id) return res.status(400).json({ error: "Invalid post id" });
 
     const existing = await prisma.post.findUnique({ where: { id } });
