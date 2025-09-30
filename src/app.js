@@ -5,6 +5,8 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import postsRoutes from "./routes/postsRoutes.js";
+import tagsRoutes from "./routes/tagsRoutes.js";
+
 
 
 
@@ -19,7 +21,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
-console.log("✅ Posts routes mounted at /api/posts");
+app.use("/api/tags", tagsRoutes)
 
 
 // Health check route
