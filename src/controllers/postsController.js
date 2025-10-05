@@ -161,7 +161,7 @@ export const getPostById = async (req, res) => {
         author: { select: { id: true, name: true, email: true } },
         tags: { include: { tag: true } },
         comments: {
-          include: { author: true },
+          include: { user: true },
           orderBy: { createdAt: "asc" },
         },
         _count: { select: { upvotes: true, comments: true } },
@@ -189,7 +189,11 @@ export const getPostById = async (req, res) => {
       comments: post.comments.map((c) => ({
         id: c.id,
         content: c.content,
-        author: c.author ? { id: c.author.id, name: c.author.name, email: c.author.email } : null,
+        author: c.user
+          ? { id: c.user.id, name: c.user.name, email: c.user.email }
+          : c.name
+          ? { name: c.name, email: c.email || null }
+          : null, // handle anonymous comments too
         createdAt: c.createdAt,
       })),
     };
@@ -200,6 +204,57 @@ export const getPostById = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// export const getPostById = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     if (!id) return res.status(400).json({ error: "Invalid post id" });
+
+//     const post = await prisma.post.findUnique({
+//       where: { id },
+//       include: {
+//         author: { select: { id: true, name: true, email: true } },
+//         tags: { include: { tag: true } },
+//         comments: {
+//           include: { user: true },
+//           orderBy: { createdAt: "asc" },
+//         },
+//         _count: { select: { upvotes: true, comments: true } },
+//       },
+//     });
+
+//     if (!post) return res.status(404).json({ error: "Post not found" });
+
+//     const result = {
+//       id: post.id,
+//       title: post.title,
+//       content: post.content,
+//       excerpt: post.excerpt,
+//       image: post.image,
+//       published: post.published,
+//       readTime: post.readTime,
+//       createdAt: post.createdAt,
+//       updatedAt: post.updatedAt,
+//       author: post.author,
+//       tags: post.tags.map((pt) => pt.tag.name),
+//       counts: {
+//         upvotes: post._count?.upvotes || 0,
+//         comments: post._count?.comments || 0,
+//       },
+//       comments: post.comments.map((c) => ({
+//         id: c.id,
+//         content: c.content,
+//         author: c.author ? { id: c.author.id, name: c.author.name, email: c.author.email } : null,
+//         createdAt: c.createdAt,
+//       })),
+//     };
+
+//     res.json({ data: result });
+//   } catch (err) {
+//     console.error("getPostById err:", err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
 
 /**
  * POST /api/posts
