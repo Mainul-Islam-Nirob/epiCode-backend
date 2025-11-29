@@ -125,7 +125,7 @@ export const listPosts = async (req, res) => {
     const data = posts.map((p) => ({
       id: p.id,
       title: p.title,
-      excerpt: p.excerpt || (p.content ? p.content.slice(0, 200) : ""),
+      excerpt: p.excerpt || (p.content ? p.content.slice(0, 300) : ""),
       image: p.image,
       published: p.published,
       readTime: p.readTime,
